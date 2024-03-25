@@ -3,10 +3,10 @@ name: Docker Image Build
 on:
   push:
     branches:
-      - [ "test" ]
+      - "test"
   pull_request:
     branches:
-      - [ "test" ]
+      - "test"
 
 jobs:
   build_cluster_image:
