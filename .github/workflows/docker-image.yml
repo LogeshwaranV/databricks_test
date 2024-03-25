@@ -27,7 +27,7 @@ jobs:
     outputs:
      cluster-image: ${{ steps.files-change-check.outputs.cluster-image }}
      script-file-codes: ${{ steps.files-change-check.outputs.script-file-codes }}
-  
+
   cluster-image:
     needs: [files-change-check]
     if: ${{ needs.files-change-check.outputs.cluster-image == 'true' }}
