@@ -1,18 +1,33 @@
-name: Docker Image CI
+name: Docker Image Build
 
 on:
   push:
-    branches: [ "test" ]
+    branches:
+      - [ "test" ]
   pull_request:
-    branches: [ "test" ]
+    branches:
+      - [ "test" ]
 
 jobs:
-
-  build:
-
+  build_cluster_image:
     runs-on: ubuntu-latest
-
     steps:
-    - uses: actions/checkout@v3
-    - name: Build the Docker image
-      run: docker build . --file Dockerfile --tag my-image-name:$(date +%s)
+      - name: Checkout repository
+        uses: actions/checkout@v2
+
+      - name: Build cluster Docker image
+        if: ${{ contains(github.event.head_commit.modified, 'cluster_docker_image') || github.event_name == 'pull_request' }}
+        run: |
+          docker build -t your_username/cluster-image:latest ./cluster_docker_image
+
+  build_another_image:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+
+      - name: Build another Docker image
+        if: ${{ contains(github.event.head_commit.modified, 'config/') || contains(github.event.head_commit.modified, 'requirements.txt') || contains(github.event.head_commit.modified, 'Dockerfile') || contains(github.event.head_commit.modified, 'src/') || github.event_name == 'pull_request' }}
+        run: |
+          docker build -t your_username/another-image:latest .
+
