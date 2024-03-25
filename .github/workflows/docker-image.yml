@@ -39,7 +39,7 @@ jobs:
           docker build -t your_username/cluster-image:latest ./cluster_docker_image
 
   script-file-codes:
-    needs: [files-change-check]
+    needs: [files-change-check,cluster-image]
     if: ${{ needs.files-change-check.outputs.script-file-codes == 'true' }}
     runs-on: ubuntu-latest
     steps:
