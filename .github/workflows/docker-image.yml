@@ -24,9 +24,9 @@ jobs:
               - 'configs/**'
               - 'requirements.txt'
               - 'Dockerfile'
-        outputs:
-          cluster-image: ${{ steps.files-change-check.outputs.cluster-image }}
-          script-file-codes: ${{ steps.files-change-check.outputs.script-file-codes }}
+        env:
+          CLUSTER_IMAGE: ${{ steps.files-change-check.outputs.cluster-image }}
+          SCRIPT_FILE_CODES: ${{ steps.files-change-check.outputs.script-file-codes }}
 
   cluster-image:
     needs: [files-change-check]
