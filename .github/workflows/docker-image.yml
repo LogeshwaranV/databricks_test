@@ -9,34 +9,41 @@ on:
       - "test"
 
 jobs:
-  build_cluster_image:
+  files-change-check:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v2
-
+    - uses: actions/checkout@v3
+    - uses: dorny/paths-filter@v2
+      id: files-change-check
+      with:
+        filters: |
+          cluster-image:
+            - 'cluster_docker_image/**'
+          script-file-codes:
+            - 'src/**'
+            - 'configs/**'
+            - 'requirements.txt'
+            - 'Dockerfile'
+    outputs:
+     cluster-image: ${{ steps.files-change-check.outputs.cluster-image }}
+     script-file-codes: ${{ steps.files-change-check.outputs.script-file-codes }}
+  
+  cluster-image:
+    needs: [files-change-check]
+    if: ${{ needs.files-change-check.outputs.cluster-image == 'true' }}
+    runs-on:  ubuntu-latest
+    steps:
+        uses: actions/checkout@v3
       - name: Build cluster Docker image
-        if: ${{ contains(github.event.head_commit.modified, 'cluster_docker_image') || github.event_name == 'pull_request' }}
         run: |
           docker build -t your_username/cluster-image:latest ./cluster_docker_image
 
-  build_another_image:
-    runs-on: ubuntu-latest
-    needs: build_cluster_image
+  script-file-codes:
+    needs: [files-change-check, cluster-image]
+    if: ${{ needs.files-change-check.outputs.script-file-codes == 'true' }}
+    runs-on:  ubuntu-latest
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v2
-
-      - name: Check for changes
-        id: check_changes
-        run: |
-          if [[ $(git diff --name-only ${{ github.event.before }} ${{ github.sha }}) =~ ^(config/|requirements.txt|Dockerfile|src/) ]]; then
-            echo "::set-output name=changes::true"
-          else
-            echo "::set-output name=changes::false"
-          fi
-
-      - name: Build another Docker image
-        if: steps.check_changes.outputs.changes == 'true'
+        uses: actions/checkout@v3
+      - name: Build script code Docker image
         run: |
           docker build -t your_username/another-image:latest .
