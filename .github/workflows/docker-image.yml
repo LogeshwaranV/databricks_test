@@ -1,12 +1,10 @@
 name: Docker Image Build
 
 on:
-  push:
-    branches:
-      - "test"
   pull_request:
+    types: [closed]
     branches:
-      - "test"
+      - "main"
 
 jobs:
   files-change-check:
@@ -24,6 +22,7 @@ jobs:
               - 'configs/**'
               - 'requirements.txt'
               - 'Dockerfile'
+              - 'notebooks/**'
     outputs:
       cluster-image: ${{ steps.files-change-check.outputs.cluster-image }}
       script-file-codes: ${{ steps.files-change-check.outputs.script-file-codes }}
